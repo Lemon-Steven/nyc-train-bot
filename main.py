@@ -52,16 +52,15 @@ def get_arrivals():
         if route not in arrivals:
             continue
 
+        # grab ANY upcoming stop_time_update (not station-specific)
         for stop_time in entity.trip_update.stop_time_update:
-            if not stop_time.arrival.time:
-                continue
+            if stop_time.arrival.time:
+                eta = int((stop_time.arrival.time - now) / 60)
 
-            eta_min = int((stop_time.arrival.time - now) / 60)
+                if eta >= 0:
+                    arrivals[route].append(eta)
+                    break  # only first valid prediction per train
 
-            if eta_min >= 0:
-                arrivals[route].append(eta_min)
-
-    # Clean + sort
     for r in arrivals:
         arrivals[r] = sorted(arrivals[r])[:3]
 
