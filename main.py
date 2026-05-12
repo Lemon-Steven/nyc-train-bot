@@ -1,33 +1,22 @@
 import requests
 import time
-from datetime import datetime
 from google.transit import gtfs_realtime_pb2
+from datetime import datetime
 
 BOT_TOKEN = "YOUR_BOT_TOKEN"
 CHAT_ID = "YOUR_CHAT_ID"
 
-# Full realtime feed (correct)
+# Full MTA realtime feed (correct one)
 FEED_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs"
 
-# Static GTFS stop mapping (Herald Square complex)
-# These are confirmed station stop IDs for 34 St–Herald Sq
-TARGET_STOPS = {
-    "N": ["R20N"],   # N/Q/R/W uptown platform
-    "F": ["D18N"]    # F/M uptown platform
-}
-
-def get_feed():
+def get_arrivals():
     feed = gtfs_realtime_pb2.FeedMessage()
+
     response = requests.get(FEED_URL)
     feed.ParseFromString(response.content)
-    return feed
-
-
-def get_arrivals():
-    feed = get_feed()
 
     arrivals = {"N": [], "F": []}
-    now = int(time.time())
+    current_time = int(time.time())
 
     for entity in feed.entity:
         if not entity.HasField("trip_update"):
@@ -36,44 +25,40 @@ def get_arrivals():
         trip = entity.trip_update.trip
         route = trip.route_id
 
+        # Only N and F trains
         if route not in arrivals:
             continue
 
         for stop_time in entity.trip_update.stop_time_update:
-            if not stop_time.arrival.time:
-                continue
+            if stop_time.arrival.time:
+                eta_minutes = int((stop_time.arrival.time - current_time) / 60)
 
-            stop_id = stop_time.stop_id
+                if eta_minutes >= 0:
+                    arrivals[route].append(eta_minutes)
+                    break  # take next upcoming stop only
 
-            # Only accept Herald Square stops
-            if stop_id not in TARGET_STOPS[route]:
-                continue
-
-            eta = int((stop_time.arrival.time - now) / 60)
-
-            if eta >= 0:
-                arrivals[route].append(eta)
-
-    # Sort + clean
+    # Sort and limit results
     for route in arrivals:
         arrivals[route] = sorted(arrivals[route])[:3]
 
     return arrivals
 
 
-def send_telegram(text):
+def send_telegram(message):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
     requests.post(url, data={
         "chat_id": CHAT_ID,
-        "text": text
+        "text": message
     })
 
 
 def main():
     arrivals = get_arrivals()
+
     now = datetime.now().strftime("%I:%M %p")
 
-    message = f"34 St–Herald Sq Arrivals ({now})\n\n"
+    message = f"34 St–Herald Sq Train Arrivals ({now})\n\n"
 
     for line in ["N", "F"]:
         times = arrivals[line]
@@ -81,7 +66,7 @@ def main():
         if times:
             formatted = ", ".join([f"{t} min" for t in times])
         else:
-            formatted = "No upcoming trains"
+            formatted = "No real-time data"
 
         message += f"{line} → Queens: {formatted}\n"
 
