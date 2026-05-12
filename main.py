@@ -7,7 +7,7 @@ BOT_TOKEN = "8746718042:AAFG5ACr5Zz9xHMoY8S9B-tMc52yKz3ODgE"
 CHAT_ID = "8314344454"
 
 # MTA realtime feed for N/Q/R/W/F/M lines
-FEED_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs-ace"
+FEED_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs"
 
 # Herald Square station IDs
 # F northbound = D18N
