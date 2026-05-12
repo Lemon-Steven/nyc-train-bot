@@ -7,8 +7,8 @@ from datetime import datetime
 # CONFIG
 # ======================
 
-BOT_TOKEN = "YOUR_BOT_TOKEN"
-CHAT_ID = "YOUR_CHAT_ID"
+BOT_TOKEN = "8746718042:AAGrkn55kgAN1tujdTnTpF8rQwZvs15I9mw"
+CHAT_ID = "8314344454"
 
 FEED_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs"
 
