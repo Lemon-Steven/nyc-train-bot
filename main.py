@@ -3,8 +3,8 @@ import time
 from google.transit import gtfs_realtime_pb2
 from datetime import datetime
 
-BOT_TOKEN = "YOUR_BOT_TOKEN"
-CHAT_ID = "YOUR_CHAT_ID"
+BOT_TOKEN = "8746718042:AAFG5ACr5Zz9xHMoY8S9B-tMc52yKz3ODgE"
+CHAT_ID = "8314344454"
 
 # Full MTA realtime feed (correct one)
 FEED_URL = "https://api-endpoint.mta.info/Dataservice/mtagtfsfeeds/nyct%2Fgtfs"
